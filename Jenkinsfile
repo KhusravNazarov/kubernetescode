@@ -1,34 +1,27 @@
-node {
-    def app
-
-    stage('Clone repository') {
-      
-
-        checkout scm
+pipeline{
+    agent any 
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub') // Reference Docker Hub credentials
+        DOCKER_IMAGE = "gass7400/kube-image"
     }
-
-    stage('Build image') {
-  
-       app = docker.build("raj80dockerid/test")
-    }
-
-    stage('Test image') {
-  
-
-        app.inside {
-            sh 'echo "Tests passed"'
+    stages{
+        stage('build image'){
+            script{
+                app = docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+            }
+        }
+        stage('test image'){
+            echo 'test passed'
+        }
+        stage('push image'){
+            steps {
+                script {
+                    docker.withRegistry('https://registry.hub.docker.com', DOCKERHUB_CREDENTIALS) {
+                        app.push("${env.BUILD_NUMBER}")
+                        app.push("latest")
+                    }
+                }
+            }
         }
     }
-
-    stage('Push image') {
-        
-        docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-            app.push("${env.BUILD_NUMBER}")
-        }
-    }
-    
-    stage('Trigger ManifestUpdate') {
-                echo "triggering updatemanifestjob"
-                build job: 'update-manifast-file', parameters: [string(name: 'DOCKERTAG', value: env.BUILD_NUMBER)]
-        }
 }
