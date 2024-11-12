@@ -6,12 +6,18 @@ pipeline{
     }
     stages{
         stage('build image'){
-            script{
+            steps{
+                script{
                 app = docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
+                }
             }
         }
         stage('test image'){
-            echo 'test passed'
+            steps{
+                script{
+                    echo 'test passed'
+                }
+            }
         }
         stage('push image'){
             steps {
