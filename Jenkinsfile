@@ -1,7 +1,7 @@
 pipeline{
     agent any 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub') // Reference Docker Hub credentials
+        DOCKERHUB_CREDENTIALS = credentials('docker') // Reference Docker Hub credentials
         DOCKER_IMAGE = "gass7400/kube-image"
     }
     stages{
